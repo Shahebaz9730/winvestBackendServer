@@ -15,6 +15,7 @@ const reportDownloaderRoutes = require("./routes/reportDownloaderRoutes");
 const path = require("path");
 const researchReportRoutes = require("./routes/researchReportRoutes");
 const investorCharterRoutes = require('./routes/investorCharterRoutes');
+const visitorRoutes = require('./routes/visitorRoutes');
 
 
 const app = express();
@@ -44,6 +45,8 @@ app.get('/api/health', (req, res) => {
 });
 
 // API Routes
+
+
 app.use('/api/auth', authRoutes);
 app.use('/api/recommendations', recommendationRoutes);
 app.use('/api/complaints', complaintRoutes);
@@ -52,6 +55,8 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/stocks', stockRoutes);
 app.use('/api/symbols', symbolRoutes);
 app.use('/api/advertisements', advertisementRoutes);
+
+app.use('/api/visitors', visitorRoutes);
 
 app.use("/api/report-downloaders", reportDownloaderRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));

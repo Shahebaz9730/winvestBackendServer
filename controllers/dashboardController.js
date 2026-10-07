@@ -1,36 +1,32 @@
 const Recommendation = require('../models/Recommendation');
 const Complaint = require('../models/Complaint');
 const ContactInquiry = require('../models/ContactInquiry');
-const ReportDownloader = require('../models/ReportDownloader'); // 1. ReportDownloader model import karein (agar model ka naam yehi hai)
+const ReportDownloader = require('../models/ReportDownloader');
+const Visitor = require('../models/Visitor'); // Visitor model import karein
 const { sendSuccess } = require('../utils/responseHandler');
 
-/**
- * @desc    Get dynamic dashboard stats
- * @route   GET /api/dashboard/stats
- * @access  Private (Admin)
- */
 const getDashboardStats = async (req, res, next) => {
   try {
     const [
       totalComplaints,
       contactInquiries,
-      totalReportDownloaders, // 2. Report downloaders count fetch karein
+      totalReportDownloaders,
+      totalVisitors, // Visitor count fetch karein
       activeRecommendations,
       totalRecommendations
     ] = await Promise.all([
       Complaint.countDocuments(),
       ContactInquiry.countDocuments(),
-      ReportDownloader.countDocuments(), // Database se total downloaders count
+      ReportDownloader.countDocuments(),
+      Visitor.countDocuments(), // Real database count
       Recommendation.countDocuments({ status: 'ACTIVE' }),
       Recommendation.countDocuments()
     ]);
 
-    // Real dynamic stats calculation
     const stats = {
-      // Total visitors ko aap base traffic + actual activity ya database count se map kar sakte hain
-      totalVisitors: (45280 + totalRecommendations * 12 + totalReportDownloaders * 5).toLocaleString(),
+      totalVisitors: totalVisitors.toLocaleString(), // Real count yahan aayega
       contactInquiries: contactInquiries.toLocaleString(),
-      researchReportsDownloader: totalReportDownloaders.toLocaleString(), // 3. Real count yahan assign hoga
+      researchReportsDownloader: totalReportDownloaders.toLocaleString(),
       totalComplaints: totalComplaints.toLocaleString(),
       activeRecommendations,
       totalRecommendations
@@ -42,6 +38,4 @@ const getDashboardStats = async (req, res, next) => {
   }
 };
 
-module.exports = {
-  getDashboardStats
-};
+module.exports = { getDashboardStats };
