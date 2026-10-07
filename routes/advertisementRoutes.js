@@ -16,9 +16,16 @@ router.get('/', advertisementController.getAdvertisements);
 // @access  Private (Admin)
 router.post('/', verifyLogin, validateCreateAdvertisement, advertisementController.createAdvertisement);
 
+// @route   PUT /api/advertisements/:id
+// @desc    Update an advertisement
+// @access  Private (Admin)
+// router.put('/:id', verifyLogin, validateAdvertisementId, advertisementController.updateAdvertisement);
+    
 // @route   DELETE /api/advertisements/:id
 // @desc    Delete an advertisement
 // @access  Private (Admin)
 router.delete('/:id', verifyLogin, validateAdvertisementId, advertisementController.deleteAdvertisement);
+
+// isme put ka logic add karna baki hai
 
 module.exports = router;

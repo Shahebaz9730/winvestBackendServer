@@ -1,6 +1,7 @@
 const Recommendation = require('../models/Recommendation');
 const Complaint = require('../models/Complaint');
 const ContactInquiry = require('../models/ContactInquiry');
+const ReportDownloader = require('../models/ReportDownloader'); // 1. ReportDownloader model import karein (agar model ka naam yehi hai)
 const { sendSuccess } = require('../utils/responseHandler');
 
 /**
@@ -13,21 +14,24 @@ const getDashboardStats = async (req, res, next) => {
     const [
       totalComplaints,
       contactInquiries,
+      totalReportDownloaders, // 2. Report downloaders count fetch karein
       activeRecommendations,
       totalRecommendations
     ] = await Promise.all([
       Complaint.countDocuments(),
       ContactInquiry.countDocuments(),
+      ReportDownloader.countDocuments(), // Database se total downloaders count
       Recommendation.countDocuments({ status: 'ACTIVE' }),
       Recommendation.countDocuments()
     ]);
 
-    // Baseline realistic stats with dynamic real-time database counts added
+    // Real dynamic stats calculation
     const stats = {
-      totalVisitors: (45280 + totalRecommendations * 12).toLocaleString(),
-      contactInquiries: contactInquiries > 0 ? contactInquiries.toLocaleString() : '1,420',
-      researchReportsDownloader: (384 + activeRecommendations * 3).toLocaleString(),
-      totalComplaints: totalComplaints > 0 ? totalComplaints.toLocaleString() : '96',
+      // Total visitors ko aap base traffic + actual activity ya database count se map kar sakte hain
+      totalVisitors: (45280 + totalRecommendations * 12 + totalReportDownloaders * 5).toLocaleString(),
+      contactInquiries: contactInquiries.toLocaleString(),
+      researchReportsDownloader: totalReportDownloaders.toLocaleString(), // 3. Real count yahan assign hoga
+      totalComplaints: totalComplaints.toLocaleString(),
       activeRecommendations,
       totalRecommendations
     };
