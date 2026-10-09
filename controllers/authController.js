@@ -7,6 +7,15 @@ const { sendSuccess, sendError } = require('../utils/responseHandler');
  * @route   POST /api/auth/login
  * @access  Public
  */
+const User = require('../models/User');
+const generateToken = require('../utils/generateToken');
+const { sendSuccess, sendError } = require('../utils/responseHandler');
+
+/**
+ * @desc    Authenticate User & generate JWT token
+ * @route   POST /api/auth/login
+ * @access  Public
+ */
 const login = async (req, res, next) => {
   try {
     const { username, password } = req.body;
@@ -18,6 +27,11 @@ const login = async (req, res, next) => {
     if (!user || !(await user.comparePassword(password))) {
       return sendError(res, 401, 'Invalid username or password');
     }
+
+    // --- UPDATE LAST ACTIVE ON LOGIN ---
+    user.lastActive = Date.now();
+    await user.save({ validateBeforeSave: false });
+    // -----------------------------------
 
     // Generate JWT token with user information
     const token = generateToken({

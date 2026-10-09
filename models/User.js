@@ -1,6 +1,13 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
+// IST Date Helper function (UTC + 5:30)
+const getISTDate = () => {
+  const now = new Date();
+  const istOffset = 5.5 * 60 * 60 * 1000;
+  return new Date(now.getTime() + istOffset);
+};
+
 const userSchema = new mongoose.Schema(
   {
     username: {
@@ -22,6 +29,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: ['admin', 'researcher', 'user'],
       default: 'admin'
+    },
+    lastActive: {
+      type: Date,
+      default: getISTDate
     }
   },
   {
@@ -30,14 +41,18 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-// Hash password before saving if modified
-userSchema.pre('save', async function () {
+// Pre-save hook to hash password and set IST time for lastActive
+userSchema.pre('save', async function (next) {
+  // Update lastActive to IST on every save/update
+  this.lastActive = getISTDate();
+
   if (!this.isModified('password')) {
-    return;
+    return next();
   }
 
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
+  next();
 });
 
 // Compare candidate password with stored hash
