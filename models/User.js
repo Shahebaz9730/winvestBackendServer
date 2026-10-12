@@ -41,18 +41,17 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-// Pre-save hook to hash password and set IST time for lastActive
-userSchema.pre('save', async function (next) {
+// Pre-save hook to hash password and set IST time for lastActive (Bina 'next' ke)
+userSchema.pre('save', async function () {
   // Update lastActive to IST on every save/update
   this.lastActive = getISTDate();
 
   if (!this.isModified('password')) {
-    return next();
+    return;
   }
 
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
-  next();
 });
 
 // Compare candidate password with stored hash
