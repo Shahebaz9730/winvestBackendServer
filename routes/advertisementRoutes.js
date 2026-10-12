@@ -19,7 +19,7 @@ router.post('/', verifyLogin, validateCreateAdvertisement, advertisementControll
 // @route   PUT /api/advertisements/:id
 // @desc    Update an advertisement
 // @access  Private (Admin)
-// router.put('/:id', verifyLogin, validateAdvertisementId, advertisementController.updateAdvertisement);
+router.put('/:id', verifyLogin, validateAdvertisementId, advertisementController.updateAdvertisement);
     
 // @route   DELETE /api/advertisements/:id
 // @desc    Delete an advertisement

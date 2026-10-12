@@ -19,7 +19,6 @@ const createAdvertisement = async (req, res, next) => {
             personImage
         } = req.body;
 
-        // Always take createdBy from authenticated token — never from frontend
         const userId = req.user.userId || req.user.id;
 
         const advertisement = await Advertisement.create({
@@ -36,6 +35,54 @@ const createAdvertisement = async (req, res, next) => {
         await advertisement.populate('createdBy', 'username role');
 
         return sendSuccess(res, 201, 'Advertisement created successfully', { advertisement });
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * @desc    Update an advertisement
+ * @route   PUT /api/advertisements/:id
+ * @access  Private (Admin)
+ */
+const updateAdvertisement = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return sendError(res, 400, 'Invalid advertisement ID format');
+        }
+
+        const {
+            type,
+            title,
+            subtitles,
+            personName,
+            contactNumber,
+            link,
+            personImage
+        } = req.body;
+
+        const updateData = {};
+        if (type !== undefined) updateData.type = type.toUpperCase();
+        if (title !== undefined) updateData.title = title;
+        if (subtitles !== undefined) updateData.subtitles = subtitles;
+        if (personName !== undefined) updateData.personName = personName;
+        if (contactNumber !== undefined) updateData.contactNumber = contactNumber;
+        if (link !== undefined) updateData.link = link;
+        if (personImage !== undefined) updateData.personImage = personImage;
+
+        const advertisement = await Advertisement.findByIdAndUpdate(
+            id,
+            updateData,
+            { new: true, runValidators: true }
+        ).populate('createdBy', 'username role');
+
+        if (!advertisement) {
+            return sendError(res, 404, 'Advertisement not found');
+        }
+
+        return sendSuccess(res, 200, 'Advertisement updated successfully', { advertisement });
     } catch (error) {
         next(error);
     }
@@ -94,6 +141,7 @@ const getAdvertisements = async (req, res, next) => {
 
 module.exports = {
     createAdvertisement,
+    updateAdvertisement,
     deleteAdvertisement,
     getAdvertisements
 };
