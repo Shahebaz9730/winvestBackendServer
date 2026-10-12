@@ -7,10 +7,6 @@ const { sendSuccess, sendError } = require('../utils/responseHandler');
  * @route   POST /api/auth/login
  * @access  Public
  */
-const User = require('../models/User');
-const generateToken = require('../utils/generateToken');
-const { sendSuccess, sendError } = require('../utils/responseHandler');
-
 /**
  * @desc    Authenticate User & generate JWT token
  * @route   POST /api/auth/login
