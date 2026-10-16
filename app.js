@@ -16,6 +16,7 @@ const path = require("path");
 const researchReportRoutes = require("./routes/researchReportRoutes");
 const investorCharterRoutes = require('./routes/investorCharterRoutes');
 const visitorRoutes = require('./routes/visitorRoutes');
+const ImgAdvertisementRoutes = require('./routes/imgAdvertisementRoutes');
 
 
 const app = express();
@@ -67,6 +68,8 @@ app.use("/api/research-report", researchReportRoutes);
 // complaintTable page
 // app.use('/api', require('./routes/investorCharterRoutes'));
 app.use('/api', investorCharterRoutes);
+
+app.use('/api/img-advertisements', ImgAdvertisementRoutes);
 
 // 404 Route Not Found Handler
 app.use(notFoundHandler);
