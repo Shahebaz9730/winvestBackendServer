@@ -1,25 +1,26 @@
 const ImgAdvertisement = require("../models/ImgAdvertisement");
-const fs = require("fs");
-const path = require("path");
 
-// 1. Upload Multiple Images with Image Type
+// 1. Upload Multiple Images (Converted to Base64 and stored in MongoDB)
 exports.uploadImgAdvertisement = async (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ success: false, message: "Please upload at least one image" });
     }
 
-    // Saari uploaded images ke relative paths ka array bana lo
-    const imagePaths = req.files.map(file => `/uploads/advertisements/${file.filename}`);
+    // Har uploaded file ke buffer ko Base64 data URL me convert karlo
+    const base64Images = req.files.map(file => {
+      const b64 = Buffer.from(file.buffer).toString("base64");
+      return `data:${file.mimetype};base64,${b64}`;
+    });
 
     const newAd = await ImgAdvertisement.create({
       imageType: req.body.imageType ? req.body.imageType.toUpperCase() : "BIG_SQUARE",
-      images: imagePaths,
+      images: base64Images,
     });
 
     res.status(201).json({
       success: true,
-      message: "Advertisements uploaded successfully",
+      message: "Advertisements uploaded successfully to database",
       data: newAd,
     });
   } catch (error) {
@@ -27,7 +28,7 @@ exports.uploadImgAdvertisement = async (req, res) => {
   }
 };
 
-// 2. Get All Advertisements (Optional filter by ?imageType=LONG)
+// 2. Get All Advertisements (Optional filter)
 exports.getImgAdvertisements = async (req, res) => {
   try {
     const { imageType } = req.query;
@@ -41,7 +42,7 @@ exports.getImgAdvertisements = async (req, res) => {
   }
 };
 
-// 3. Delete Advertisement & Remove Files from Disk
+// 3. Delete Advertisement from Database
 exports.deleteImgAdvertisement = async (req, res) => {
   try {
     const { id } = req.params;
@@ -51,14 +52,6 @@ exports.deleteImgAdvertisement = async (req, res) => {
       return res.status(404).json({ success: false, message: "Advertisement not found" });
     }
 
-    // Disk storage se is record ki saari images delete karo
-    ad.images.forEach(imgPath => {
-      const filePath = path.join(__dirname, "..", imgPath);
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-      }
-    });
-
     await ImgAdvertisement.findByIdAndDelete(id);
 
     res.status(200).json({ success: true, message: "Advertisement deleted successfully" });
@@ -67,7 +60,7 @@ exports.deleteImgAdvertisement = async (req, res) => {
   }
 };
 
-// 4. Update Advertisement & Handle Old/New Files
+// 4. Update Advertisement
 exports.updateImgAdvertisement = async (req, res) => {
   try {
     const { id } = req.params;
@@ -77,23 +70,16 @@ exports.updateImgAdvertisement = async (req, res) => {
       return res.status(404).json({ success: false, message: "Advertisement not found" });
     }
 
-    let updatedImages = ad.images; // Default purani images rakho
+    let updatedImages = ad.images;
 
-    // Agar nayi files upload hui hain
+    // Agar nayi files aayi hain toh unhe base64 me convert karke update karo
     if (req.files && req.files.length > 0) {
-      // Pehle disk se purani saari images delete karo
-      ad.images.forEach(imgPath => {
-        const filePath = path.join(__dirname, "..", imgPath);
-        if (fs.existsSync(filePath)) {
-          fs.unlinkSync(filePath);
-        }
+      updatedImages = req.files.map(file => {
+        const b64 = Buffer.from(file.buffer).toString("base64");
+        return `data:${file.mimetype};base64,${b64}`;
       });
-
-      // Nayi images ke paths set karo
-      updatedImages = req.files.map(file => `/uploads/advertisements/${file.filename}`);
     }
 
-    // Update fields
     ad.imageType = req.body.imageType ? req.body.imageType.toUpperCase() : ad.imageType;
     ad.images = updatedImages;
 
