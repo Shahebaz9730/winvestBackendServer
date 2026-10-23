@@ -60,8 +60,8 @@ const recommendationSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: {
-        values: ['ACTIVE', 'NONACTIVE', 'HOLD'],
-        message: 'Status must be ACTIVE, NONACTIVE, or HOLD'
+        values: ['ACTIVE', 'CLOSED', 'HOLD'],
+        message: 'Status must be ACTIVE, CLOSED, or HOLD'
       },
       default: 'ACTIVE'
     },

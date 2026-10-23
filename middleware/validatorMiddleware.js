@@ -104,8 +104,8 @@ const validateCreateRecommendation = [
     .optional()
     .trim()
     .toUpperCase()
-    .isIn(['ACTIVE', 'NONACTIVE', 'HOLD'])
-    .withMessage('Status must be ACTIVE, NONACTIVE, or HOLD'),
+    .isIn(['ACTIVE', 'CLOSED', 'HOLD'])
+    .withMessage('Status must be ACTIVE, CLOSED, or HOLD'),
 
 
   body('researchReason')
@@ -194,8 +194,8 @@ const validateUpdateRecommendation = [
     // .isIn(['ACTIVE', 'CLOSED', 'EXPIRED'])
     // .withMessage('Status must be ACTIVE, CLOSED, or EXPIRED'),
 
-    .isIn(['ACTIVE', 'NONACTIVE', 'HOLD'])
-    .withMessage('Status must be ACTIVE, NONACTIVE, or HOLD'),
+    .isIn(['ACTIVE', 'CLOSED', 'HOLD'])
+    .withMessage('Status must be ACTIVE, CLOSED, or HOLD'),
 
 
   body('researchReason')
